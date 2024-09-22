@@ -1,0 +1,38 @@
+{
+  "name": "com.simeonradivoev.2d.procgen",
+  "version": "0.1.0",
+  "unity": "2022.2",
+  "displayName": "2D Procedural Generation",
+  "description": "2D Procedural Generation. A layer based approach written using jobs and burst for maximum performance.",
+  "keywords": [
+    "2d",
+    "procedural",
+    "generation",
+    "tilemap"
+  ],
+  "category": "2D",
+  "dependencies": {
+    "com.unity.burst": "1.8.17",
+    "com.unity.collections": "1.2.4",
+    "com.unity.mathematics": "1.2.6",
+    "com.unity.2d.tilemap.extras": "3.1.2"
+  },
+  "relatedPackages": {
+  },
+  "samples": [
+    {
+      "displayName": "Shoot 'em up Example",
+      "description": "A Shoot 'em up game made using the framework.",
+      "path": "Samples~/SHMUP"
+    }
+  ],
+  "_upm": {
+    "changelog": ""
+  },
+  "documentationUrl": "",
+  "repository": {
+    "url": "",
+    "type": "git",
+    "revision": "c76edf174a772eda3d3152a9d38ad8c364cce43e"
+  }
+}
