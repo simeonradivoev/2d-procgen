@@ -1,0 +1,3 @@
+[submodule "Samples~/2d-procgen-sample"]
+	path = Samples~/2d-procgen-sample
+	url = https://github.com/simeonradivoev/2d-procgen-sample.git

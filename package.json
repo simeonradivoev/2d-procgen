@@ -23,7 +23,7 @@
     {
       "displayName": "Shoot 'em up Example",
       "description": "A Shoot 'em up game made using the framework.",
-      "path": "Samples~/SHMUP"
+      "path": "Samples~/2d-procgen-sample"
     }
   ],
   "_upm": {
