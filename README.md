@@ -8,8 +8,9 @@ I found it pretty useful so I decided to polish it up a bit, add blending and op
 
 ## Sample
 
-I made a simple Shoot 'em up game that has infinite vertical terrain generation. You can check it out
-here [source](https://github.com/simeonradivoev/2d-procgen-sample) or just import it in unity from the package manager
+I made a simple Shoot 'em up game that has infinite vertical terrain generation. Play in on [![](https://img.itch.zone/aW1nLzE3ODgzMTQ1LnBuZw==/315x250%23c/WeC%2FO4.png)](https://simeonradivoev.itch.io/infinite-2d-shmup-sample)
+
+You can check it out the [source](https://github.com/simeonradivoev/2d-procgen-sample) or just import it in unity from the package manager
 in the samples section.
 
 ## Features
@@ -51,6 +52,7 @@ Each group must have layers as children having the `TilemapGeneratorLayer` compo
 as you like
 
 ![](/Samples~/TreeStructure.png)
+
 This is an example of the hierarchy structure. Check out
 the [Sample](https://github.com/simeonradivoev/2d-procgen-sample) project for examples.
 
