@@ -1,6 +1,6 @@
 {
   "name": "com.simeonradivoev.2d.procgen",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "unity": "2022.2",
   "displayName": "2D Procedural Generation",
   "description": "2D Procedural Generation. A layer based approach written using jobs and burst for maximum performance.",
