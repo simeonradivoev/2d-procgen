@@ -525,9 +525,17 @@ namespace ProcGen2D
                 _disposingChunks.Remove(chunkPos);
 
                 var disposedObjectCount = 0;
-                while (chunk.Objects.childCount > 0)
+                var childCount = chunk.Objects.childCount;
+                while (childCount > 0)
                 {
-                    var lastObject = chunk.Objects.GetChild(chunk.Objects.childCount - 1);
+                    childCount--;
+
+                    if (childCount >= chunk.Objects.childCount)
+                    {
+                        continue;
+                    }
+
+                    var lastObject = chunk.Objects.GetChild(childCount);
                     if (ObjectDisposer != null)
                     {
                         ObjectDisposer.Invoke(lastObject.gameObject);
