@@ -172,7 +172,7 @@ namespace ProcGen2D.Layers
         #endregion
     }
 
-    public class GeneratorSourcePerlin : JobGeneratorSource<PerlinJob>
+    public class GeneratorSourceNoise : JobGeneratorSource<PerlinJob>
     {
         [SerializeField]
         private PerlinJob _settings = new() { NoiseSize = 1, NoiseMultiplier = 1 };

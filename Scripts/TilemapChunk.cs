@@ -11,6 +11,8 @@ namespace ProcGen2D
     {
         private readonly Dictionary<string, TilemapChunkTilemap> _tilemapMap = new();
 
+        public Transform Objects { get; private set; }
+
         public int2 Chunk { get; set; }
 
         public BitField32 Edges { get; set; }
@@ -25,6 +27,19 @@ namespace ProcGen2D
             {
                 _tilemapMap.TryAdd(tilemap.name, tilemap);
             }
+
+            Objects = new GameObject("Objects").transform;
+            Objects.SetParent(transform, false);
+            Objects.transform.localPosition = Vector3.zero;
+            Objects.transform.localRotation = Quaternion.identity;
+            Objects.transform.localScale = Vector3.one;
+        }
+
+        private void OnEnable()
+        {
+            Edges = default;
+            Chunk = default;
+            State = ChunkGenerationState.NonGenerated;
         }
 
         public void Initialize(int2 chunk, int2 size)

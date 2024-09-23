@@ -22,8 +22,11 @@
   "samples": [
     {
       "displayName": "Shoot 'em up Example",
-      "description": "A Shoot 'em up game made using the framework.",
-      "path": "Samples~/2d-procgen-sample"
+      "description": "A Shoot 'em up game made using the framework. Sample uses the Input System package.",
+      "path": "Samples~/2d-procgen-sample",
+      "dependencies": {
+        "com.unity.inputsystem": "1.7.0"
+      }
     }
   ],
   "_upm": {

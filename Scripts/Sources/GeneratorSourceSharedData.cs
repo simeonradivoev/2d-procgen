@@ -55,6 +55,9 @@ namespace ProcGen2D.Layers
         #endregion
     }
 
+    /// <summary>
+    /// Just retries shared data from other layers that generated it.
+    /// </summary>
     public class GeneratorSourceSharedData : JobGeneratorSource<SharedDataJob>
     {
         [SerializeField]

@@ -94,7 +94,7 @@ namespace ProcGen2D
             }
         }*/
 
-        public IEnumerator GenerateAsync(IGenerationContext context)
+        public IEnumerator GenerateAsync(IGenerationContext context, GenerationOptions generationOptions = default)
         {
             var handles = new NativeArray<JobHandle>(_layers.Count, Allocator.TempJob);
             for (var i = 0; i < _layers.Count; i++)
@@ -110,7 +110,14 @@ namespace ProcGen2D
             for (var i = 0; i < _layers.Count; i++)
             {
                 _layers[i].PostGenerate(context);
-                yield return null;
+                if (generationOptions.UseFixedUpdate)
+                {
+                    yield return new WaitForFixedUpdate();
+                }
+                else
+                {
+                    yield return new WaitForEndOfFrame();
+                }
             }
         }
     }

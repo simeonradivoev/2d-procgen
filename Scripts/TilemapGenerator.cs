@@ -18,6 +18,9 @@ namespace ProcGen2D
 
         public int2 TilemapChunkMin { get; set; }
 
+        /// <summary>
+        /// The indicies of the <see cref="Utils.Directions"/>
+        /// </summary>
         public BitField32 Edges { get; set; }
 
         public GeneratorBiome Biome { get; set; }
@@ -40,6 +43,29 @@ namespace ProcGen2D
         public SharedData SharedData { get; } = new();
 
         #endregion
+    }
+
+    public struct DisposeOptions
+    {
+        /// <summary>
+        /// If set we limit how many objects are disposed per frame.
+        /// </summary>
+        public int? MaxObjectsPerTick;
+
+        /// <summary>
+        /// Should the coroutine use <see cref="WaitForFixedUpdate"/> instead of <see cref="WaitForEndOfFrame"/>.
+        /// </summary>
+        public bool UseFixedUpdate;
+
+        public bool Instant;
+    }
+
+    public struct GenerationOptions
+    {
+        /// <summary>
+        /// Should the coroutine use <see cref="WaitForFixedUpdate"/> instead of <see cref="WaitForEndOfFrame"/>.
+        /// </summary>
+        public bool UseFixedUpdate;
     }
 
     public class TilemapGenerator : MonoBehaviour
@@ -112,7 +138,15 @@ namespace ProcGen2D
 
         public IReadOnlyCollection<int2> DisposingChunks => _disposingChunks;
 
+        /// <summary>
+        /// The allowed blending directions.
+        /// </summary>
         public BlendingDirection BlendingDirections => _blendingDirections;
+
+        /// <summary>
+        /// Custom action for disposing of objects in the objects transform in chunks. By default if not set they are just destroyed.
+        /// </summary>
+        public Action<GameObject> ObjectDisposer { get; set; }
 
         private void OnDestroy()
         {
@@ -131,9 +165,15 @@ namespace ProcGen2D
             CalculateBlendingMasks();
         }
 
+        /// <summary>
+        /// Called after a chunk has been generated. At the end of the generated coroutine.
+        /// </summary>
         public event Action<TilemapChunk> OnChunkGenerated;
 
-        public event Action<TilemapChunk> OnChunkDispoed;
+        /// <summary>
+        /// Called after a chunk has been disposed. At the end of the dispose coroutine.
+        /// </summary>
+        public event Action<TilemapChunk> OnChunkDisposed;
 
         private TilemapChunk GetChunk(int2 pos)
         {
@@ -144,7 +184,6 @@ namespace ProcGen2D
             {
                 chunk = _chunkPool.Pop();
                 chunk.gameObject.SetActive(true);
-                chunk.State = ChunkGenerationState.NonGenerated;
             }
             else
             {
@@ -393,7 +432,7 @@ namespace ProcGen2D
             Utils.ExecuteSync(GenerateAsync(biomeSource, chunkPos));
         }
 
-        public IEnumerator GenerateAsync(IBiomeSource biomeSource, int2 chunkPos)
+        public IEnumerator GenerateAsync(IBiomeSource biomeSource, int2 chunkPos, GenerationOptions options = default)
         {
             if (_chunks.ContainsKey(chunkPos))
             {
@@ -409,7 +448,7 @@ namespace ProcGen2D
             {
                 if (PrepareTilemap(biomeSource, biome, tilemap.Key, chunk, out var group))
                 {
-                    yield return group.GenerateAsync(_context);
+                    yield return group.GenerateAsync(_context, options);
                 }
             }
 
@@ -423,7 +462,7 @@ namespace ProcGen2D
                     {
                         if (PrepareBlendingTilemap(biomeSource, tilemap.Key, i, chunkPos + Utils.Directions[i], out var neighborGroup))
                         {
-                            yield return neighborGroup.GenerateAsync(_context);
+                            yield return neighborGroup.GenerateAsync(_context, options);
                         }
                     }
 
@@ -434,13 +473,20 @@ namespace ProcGen2D
             for (var cy = 0; cy < _chunkSize.y; cy++)
             {
                 UpdateTilemaps(chunk, cy * _chunkSize.x);
-                yield return null;
+                if (options.UseFixedUpdate)
+                {
+                    yield return new WaitForFixedUpdate();
+                }
+                else
+                {
+                    yield return new WaitForEndOfFrame();
+                }
             }
 
             FinishGen(chunk);
         }
 
-        public IEnumerator DisposeAsync(int2 chunkPos)
+        public IEnumerator DisposeAsync(int2 chunkPos, DisposeOptions options = default)
         {
             if (_chunks.Remove(chunkPos, out var chunk))
             {
@@ -452,10 +498,17 @@ namespace ProcGen2D
                     // Gradual clearing of tiles prevents CPU spikes from physics updates
                     foreach (var tilemap in chunk.Tilemaps)
                     {
-                        tilemap.Value.Tilemap.SetTilesBlock(new BoundsInt(0, y * _chunkSize.y, 0, _chunkSize.x, 1, 0), _emptyTiles);
+                        tilemap.Value.Tilemap.SetTilesBlock(new BoundsInt(0, y, 0, _chunkSize.x, 1, 1), _emptyTiles);
                     }
 
-                    yield return new WaitForEndOfFrame();
+                    if (options.UseFixedUpdate)
+                    {
+                        yield return new WaitForFixedUpdate();
+                    }
+                    else if (!options.Instant)
+                    {
+                        yield return new WaitForEndOfFrame();
+                    }
                 }
 
                 if (_chunkPooling)
@@ -470,6 +523,37 @@ namespace ProcGen2D
 
                 chunk.State = ChunkGenerationState.Disposed;
                 _disposingChunks.Remove(chunkPos);
+
+                var disposedObjectCount = 0;
+                while (chunk.Objects.childCount > 0)
+                {
+                    var lastObject = chunk.Objects.GetChild(chunk.Objects.childCount - 1);
+                    if (ObjectDisposer != null)
+                    {
+                        ObjectDisposer.Invoke(lastObject.gameObject);
+                    }
+                    else
+                    {
+                        Destroy(lastObject.gameObject);
+                    }
+
+                    disposedObjectCount++;
+                    if (disposedObjectCount > options.MaxObjectsPerTick)
+                    {
+                        if (options.UseFixedUpdate)
+                        {
+                            yield return new WaitForFixedUpdate();
+                        }
+                        else if (!options.Instant)
+                        {
+                            yield return new WaitForEndOfFrame();
+                        }
+
+                        disposedObjectCount = 0;
+                    }
+                }
+
+                OnChunkDisposed?.Invoke(chunk);
             }
         }
 

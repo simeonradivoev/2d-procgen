@@ -41,6 +41,9 @@ namespace ProcGen2D.Layers
         #endregion
     }
 
+    /// <summary>
+    /// Clamp value within a range.
+    /// </summary>
     public class GeneratorSourceRange : GeneratorSourceBase
     {
         [SerializeField]

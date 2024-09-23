@@ -60,6 +60,9 @@ namespace ProcGen2D.Layers
         #endregion
     }
 
+    /// <summary>
+    /// a vertical edge around the map with some noise to it.
+    /// </summary>
     public class GeneratorSourceEdgeNoise : JobGeneratorSource<EdgeNoiseJob>
     {
         [SerializeField]

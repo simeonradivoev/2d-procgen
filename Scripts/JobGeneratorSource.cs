@@ -23,8 +23,6 @@ namespace ProcGen2D.Layers
 
         protected abstract JobHandle ScheduleJob(ref T job, JobHandle previous);
 
-        #region Overrides of GeneratorLayer
-
         #region Overrides of GeneratorSource
 
         protected override JobHandle GenerateAsyncInternal(LayerContext context, NativeArray<float> data, JobHandle previous)
@@ -33,16 +31,6 @@ namespace ProcGen2D.Layers
                 context,
                 new NativeContext { Data = data, ChunkWorldMin = context.ChunkWorldMin, Chunk = context.Chunk, Size = Size, Seed = context.Seed });
             return ScheduleJob(ref job, previous);
-        }
-
-        #endregion
-
-        protected override void GenerateInternal(LayerContext context, NativeArray<float> data)
-        {
-            var job = CreateJob(
-                context,
-                new NativeContext { Data = data, ChunkWorldMin = context.ChunkWorldMin, Chunk = context.Chunk, Size = Size, Seed = context.Seed });
-            job.RunByRef();
         }
 
         #endregion

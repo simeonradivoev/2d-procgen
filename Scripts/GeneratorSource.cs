@@ -10,8 +10,6 @@ namespace ProcGen2D
         [SerializeField]
         private GeneratorLayerOperation _operation;
 
-        protected abstract void GenerateInternal(LayerContext context, NativeArray<float> data);
-
         protected abstract JobHandle GenerateAsyncInternal(LayerContext context, NativeArray<float> data, JobHandle previous);
 
         public override void GenerateAsync(LayerContext context, NativeArray<float> data, JobHandle previous, out JobHandle handle)

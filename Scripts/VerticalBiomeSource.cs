@@ -8,6 +8,9 @@ using Random = Unity.Mathematics.Random;
 
 namespace DefaultNamespace
 {
+    /// <summary>
+    /// Provides biomes vertically infinitely based on random weight.
+    /// </summary>
     public class VerticalBiomeSource : MonoBehaviour, IBiomeSource
     {
         [SerializeField]

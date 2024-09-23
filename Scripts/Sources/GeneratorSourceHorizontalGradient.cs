@@ -45,6 +45,9 @@ namespace ProcGen2D.Layers
         #endregion
     }
 
+    /// <summary>
+    /// Horizontal Gradient
+    /// </summary>
     public class GeneratorSourceHorizontalGradient : JobGeneratorSource<HorizontalGradientJob>
     {
         [SerializeField]

@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
-using Action = System.Action;
 using Random = Unity.Mathematics.Random;
 
 namespace ProcGen2D
@@ -18,6 +14,9 @@ namespace ProcGen2D
 
         public static readonly int2[] Directions = { new(0, 1), new(1, 1), new(1, 0), new(1, -1), new(0, -1), new(1, -1), new(-1, 0), new(-1, 1) };
 
+        /// <summary>
+        /// Direction index lookup fro each blending type in <see cref="BlendingDirection"/>. The indices refer to <see cref="Directions"/>.
+        /// </summary>
         public static readonly int[][] BlendingDirections = { new[] { 2, 6 }, new[] { 0, 4 }, new[] { 0, 1, 2, 3, 4, 5, 6, 7 } };
 
         public static int WeightedRandom<T>(this IList<T> list, Func<T, float> weightGetter, ref Random random)
@@ -47,6 +46,10 @@ namespace ProcGen2D
             return -1;
         }
 
+        /// <summary>
+        /// Loops over an enumerator. Used to run coroutines fully and instantly.
+        /// </summary>
+        /// <param name="enumerator"></param>
         public static void ExecuteSync(IEnumerator enumerator)
         {
             while (enumerator.MoveNext())
@@ -75,69 +78,6 @@ namespace ProcGen2D
                         break;
                 }
             }
-        }
-
-        public struct JobHandleAwaiter : INotifyCompletion
-        {
-            private static readonly SendOrPostCallback RunActionCallback = RunAction;
-
-            private static readonly WaitCallback WaitCallbackRunAction = RunAction;
-
-            private readonly CancellationToken _cancellationToken;
-
-            private readonly JobHandle _jobHandle;
-
-            public bool IsCompleted => _jobHandle.IsCompleted || _cancellationToken.IsCancellationRequested;
-
-            public JobHandleAwaiter(JobHandle jobHandle, CancellationToken cancellationToken = default)
-            {
-                _jobHandle = jobHandle;
-                _cancellationToken = cancellationToken;
-            }
-
-            private static void RunAction(object action)
-            {
-                ((Action)action).Invoke();
-            }
-
-            public JobHandleAwaiter GetAwaiter()
-            {
-                return this;
-            }
-
-            public void GetResult()
-            {
-            }
-
-            #region Implementation of INotifyCompletion
-
-            public void OnCompleted(Action continuation)
-            {
-                _jobHandle.Complete();
-                if (continuation == null)
-                {
-                    throw new ArgumentNullException(nameof(continuation));
-                }
-                var currentNoFlow = SynchronizationContext.Current;
-                if (currentNoFlow != null && currentNoFlow.GetType() != typeof(SynchronizationContext))
-                {
-                    currentNoFlow.Post(RunActionCallback, continuation);
-                }
-                else
-                {
-                    var current = TaskScheduler.Current;
-                    if (current == TaskScheduler.Default)
-                    {
-                        ThreadPool.QueueUserWorkItem(WaitCallbackRunAction, continuation);
-                    }
-                    else
-                    {
-                        Task.Factory.StartNew(continuation, new CancellationToken(), TaskCreationOptions.PreferFairness, current);
-                    }
-                }
-            }
-
-            #endregion
         }
     }
 }
